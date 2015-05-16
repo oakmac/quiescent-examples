@@ -1,0 +1,20 @@
+pom.xml
+*jar
+/lib/
+/classes/
+/out/
+/target/
+.lein-deps-sum
+.lein-repl-history
+.lein-plugins/
+
+*.swp
+
+/public/js/main.js
+/public/js/main.min.js
+/public/out/
+
+.DS_Store
+
+# ignore diffs
+*.diff

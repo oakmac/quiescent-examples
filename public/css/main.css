@@ -1,0 +1,56 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  color: #444;
+  font-family: 'Open Sans', 'Helvetica', sans-serif;
+  padding: 40px;
+}
+
+#appStateContainer {
+  background: #ececec;
+  margin-top: 40px;
+  padding: 20px;
+}
+
+.clearfix {
+  clear: both;
+}
+
+.input-wrapper {
+  float: left;
+  width: 300px;
+}
+
+.input-wrapper label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+fieldset {
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+
+input[type="text"] {
+  font-size: 18px;
+  padding: 6px;
+}
+
+.menu {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px;
+  position: absolute;
+  z-index: 10;
+}
