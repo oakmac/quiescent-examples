@@ -41,6 +41,7 @@
   :start-city-search-text ""
   :finish-city-search-text ""
 
+  :active-filter nil
   })
 
 (def app-state (atom initial-app-state))
@@ -60,13 +61,27 @@
 (defn- click-city-token [app-state-kwd]
   (swap! app-state assoc app-state-kwd nil))
 
+(defn- click-filter-link [filter-kwd]
+  (swap! app-state assoc :active-filter filter-kwd))
+
 ;;------------------------------------------------------------------------------
 ;; React Components
 ;;------------------------------------------------------------------------------
 
+(sablono/defhtml filter-links []
+  [:div.filter-links
+    [:span {:on-click (partial click-filter-link :fruits)} "Fruits"]
+    [:span {:on-click (partial click-filter-link :vegetables)} "Vegetables"]
+    [:span {:on-click (partial click-filter-link :meats)} "Meats"]
+    [:span {:on-click (partial click-filter-link :drinks)} "Drinks"]])
+
 (quiescent/defcomponent Filters []
   (sablono/html
-    [:div "TODO: filters"]))
+    [:div.filters-wrapper
+      [:label "Filters:"]
+      (filter-links)
+      ;; TODO: filter tokens here
+      ]))
 
 (sablono/defhtml city-option [search-text-kwd city-kwd city]
   [:div.dropdown-option {:on-click (partial click-dropdown-option search-text-kwd city-kwd city)}
@@ -140,7 +155,11 @@
 (defn- on-change-app-state [_ _ _ new-state]
   (.render js/React (MenusApp new-state) container-el))
 
-(add-watch app-state :change on-change-app-state)
+(add-watch app-state :render-dom on-change-app-state)
+
+;;------------------------------------------------------------------------------
+;; Show the State as JSON
+;;------------------------------------------------------------------------------
 
 ;; TODO: use CLJS pprint here
 (defn- show-app-state [_ _ _ new-state]
@@ -150,10 +169,41 @@
 (add-watch app-state :show-state show-app-state)
 
 ;;------------------------------------------------------------------------------
+;; Time Travel with the Slider
+;;------------------------------------------------------------------------------
+
+(def slider-el (by-id "historySlider"))
+(def past-states (atom []))
+
+(defn- save-app-state [_ _ _ new-state]
+  ;; save this state
+  (swap! past-states conj new-state)
+  ;; update the slider
+  (aset slider-el "max" (count @past-states))
+  (aset slider-el "value" (count @past-states)))
+
+(add-watch app-state :save-state save-app-state)
+
+;;------------------------------------------------------------------------------
+;; Native DOM Events
+;;------------------------------------------------------------------------------
+
+(defn- change-slider [js-evt]
+  (let [state-idx (int (aget js-evt "target" "value"))
+        state (get @past-states state-idx)]
+    (when state
+      (on-change-app-state nil nil nil state)
+      (show-app-state nil nil nil state))))
+
+(defn- add-events! []
+  (.addEventListener slider-el "input" change-slider))
+
+;;------------------------------------------------------------------------------
 ;; Global App Init
 ;;------------------------------------------------------------------------------
 
 (defn- init! []
+  (add-events!)
   (swap! app-state identity))
 
 (.addEventListener js/window "load" init!)

@@ -31,6 +31,14 @@ body {
   width: 39%;
 }
 
+#historyContainer {
+  margin-top: 40px;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
 .clearfix {
   clear: both;
 }
@@ -40,7 +48,7 @@ body {
   width: 300px;
 }
 
-.input-wrapper label {
+label {
   display: block;
   margin-bottom: 10px;
 }
@@ -95,3 +103,19 @@ input[type="text"] {
   margin-left: 10px;
   padding: 2px 8px;
 }
+
+.filters-wrapper {
+  margin-top: 40px;
+}
+
+.filter-links span {
+  color: #1919e2;
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.filter-links span:hover {
+  text-decoration: underline;
+}
+
