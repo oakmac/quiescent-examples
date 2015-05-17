@@ -1,6 +1,7 @@
 (ns menus-example.core
   (:require
     cljsjs.react
+    [cljs.pprint :refer [pprint]]
     [clojure.string :refer [blank? lower-case]]
     [quiescent :include-macros true]
     [sablono.core :as sablono :include-macros true]
@@ -75,7 +76,7 @@
     [:span {:on-click (partial click-filter-link :meats)} "Meats"]
     [:span {:on-click (partial click-filter-link :drinks)} "Drinks"]])
 
-(quiescent/defcomponent Filters []
+(quiescent/defcomponent Filters [state]
   (sablono/html
     [:div.filters-wrapper
       [:label "Filters:"]
@@ -159,15 +160,21 @@
 (add-watch app-state :render-dom on-change-app-state)
 
 ;;------------------------------------------------------------------------------
-;; Show the State as JSON
+;; Show the State as EDN
 ;;------------------------------------------------------------------------------
+
+;; capture the result of pprint in a string
+(def pprint-butter (atom ""))
+(set! *print-newline* false)
+(set! *print-fn* (fn [x]
+  (swap! pprint-butter str x)))
 
 (def app-state-text-el (by-id "appStateText"))
 
-;; TODO: use CLJS pprint here
 (defn- show-app-state [_ _ _ new-state]
-  (let [js-state (clj->js new-state)]
-    (aset app-state-text-el "innerHTML" (.stringify js/JSON js-state nil 2))))
+  (reset! pprint-butter "")
+  (pprint new-state)
+  (aset app-state-text-el "innerHTML" @pprint-butter))
 
 (add-watch app-state :show-state show-app-state)
 

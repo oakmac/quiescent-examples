@@ -92,7 +92,7 @@ input[type="text"] {
   border-radius: 6px;
   cursor: pointer;
   display: inline-block;
-  padding: 6px 12px;
+  padding: 5px 10px;
 }
 
 .city-token .x {
