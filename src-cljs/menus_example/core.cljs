@@ -112,7 +112,8 @@
       (when-not (blank? search-txt)
         (CityDropdown [search-txt search-text-kwd city-kwd]))]))
 
-(quiescent/defcomponent TokenOrInput [{:keys [label selected-city search-txt city-kwd search-text-kwd]}]
+(quiescent/defcomponent TokenOrInput [{:keys [city-kwd label search-txt
+                                              search-text-kwd selected-city]}]
   (sablono/html
     [:div.input-wrapper
       [:label (str label ":")]
@@ -161,10 +162,12 @@
 ;; Show the State as JSON
 ;;------------------------------------------------------------------------------
 
+(def app-state-text-el (by-id "appStateText"))
+
 ;; TODO: use CLJS pprint here
 (defn- show-app-state [_ _ _ new-state]
   (let [js-state (clj->js new-state)]
-    (set-html! "appStateContainer" (.stringify js/JSON js-state nil 2))))
+    (aset app-state-text-el "innerHTML" (.stringify js/JSON js-state nil 2))))
 
 (add-watch app-state :show-state show-app-state)
 
@@ -178,9 +181,14 @@
 (defn- save-app-state [_ _ _ new-state]
   ;; save this state
   (swap! past-states conj new-state)
-  ;; update the slider
-  (aset slider-el "max" (count @past-states))
-  (aset slider-el "value" (count @past-states)))
+
+  (let [num-states (count @past-states)]
+    ;; update the slider
+    (aset slider-el "max" num-states)
+    (aset slider-el "value" num-states)
+    ;; update state counts
+    (set-html! "currentState" num-states)
+    (set-html! "totalStates" num-states)))
 
 (add-watch app-state :save-state save-app-state)
 
@@ -193,7 +201,8 @@
         state (get @past-states state-idx)]
     (when state
       (on-change-app-state nil nil nil state)
-      (show-app-state nil nil nil state))))
+      (show-app-state nil nil nil state)
+      (set-html! "currentState" (inc state-idx)))))
 
 (defn- add-events! []
   (.addEventListener slider-el "input" change-slider))

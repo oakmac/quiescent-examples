@@ -24,18 +24,18 @@ body {
   width: 59%;
 }
 
-#appStateContainer {
-  background: #ececec;
+#stateViewContainer {
   float: right;
-  padding: 20px;
   width: 39%;
 }
 
-#historyContainer {
-  margin-top: 40px;
+#appStateText {
+  background: #ececec;
+  padding: 20px;
 }
 
 input[type="range"] {
+  margin-bottom: 15px;
   width: 100%;
 }
 

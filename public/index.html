@@ -8,12 +8,12 @@
 </head>
 <body>
 <div id="appContainer"></div>
-<pre id="appStateContainer"></pre>
-<div class="clearfix"></div>
-<div id="historyContainer">
-  <label>State History:</label>
-  <input id="historySlider" type="range" min="0" max="0">
+<div id="stateViewContainer">
+  <input id="historySlider" type="range" min="0" max="0" />
+  <label>State <span id="currentState">1</span> of <span id="totalStates">1</span>:</label>
+  <pre id="appStateText"></pre>
 </div>
+<div class="clearfix"></div>
 <script>
 window.US_CITIES = [
   "Abilene, Texas",
