@@ -17,10 +17,18 @@ body {
   padding: 40px;
 }
 
+#appContainer {
+  border: 1px solid #ddd;
+  float: left;
+  padding: 20px;
+  width: 59%;
+}
+
 #appStateContainer {
   background: #ececec;
-  margin-top: 40px;
+  float: right;
   padding: 20px;
+  width: 39%;
 }
 
 .clearfix {
@@ -37,20 +45,53 @@ body {
   margin-bottom: 10px;
 }
 
-fieldset {
-  border: 1px solid #ddd;
-  padding: 20px;
-}
-
 input[type="text"] {
-  font-size: 18px;
+  font-size: 16px;
   padding: 6px;
+  width: 80%;
 }
 
 .menu {
   background: #fff;
   border: 1px solid #ccc;
-  padding: 15px;
+  padding: 10px;
   position: absolute;
   z-index: 10;
+}
+
+.no-match {
+  color: #aaa;
+  font-style: italic;
+}
+
+.dropdown-option {
+  border-bottom: 1px solid #cecece;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.dropdown-option:hover {
+  background: #eee;
+}
+
+.menu div:nth-last-child(1) {
+  border-bottom: 0;
+}
+
+.city-token {
+  background: #ececec;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-block;
+  padding: 6px 12px;
+}
+
+.city-token .x {
+  background: #ddd;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
 }

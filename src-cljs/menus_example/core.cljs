@@ -1,7 +1,7 @@
 (ns menus-example.core
   (:require
     cljsjs.react
-    [clojure.string :refer [blank?]]
+    [clojure.string :refer [blank? lower-case]]
     [quiescent :include-macros true]
     [sablono.core :as sablono :include-macros true]
     [menus-example.util :refer [by-id js-log log set-html!]]))
@@ -10,18 +10,40 @@
 ;; Data
 ;;------------------------------------------------------------------------------
 
-(def us-states (js->clj js/US_STATES))
+(def us-cities (js->clj js/US_CITIES))
+
+;; NOTE: this is a very basic matching algorithm; could be greatly improved for
+;; actual production use
+(defn- city-match? [search-txt city-name]
+  (let [search-txt (lower-case search-txt)
+        city-name  (lower-case city-name)]
+    (not= -1 (.indexOf city-name search-txt))))
+
+(def dropdown-menu-limit 8)
+
+(defn- find-cities
+  "Finds cities that match search-txt."
+  [search-txt]
+  (->> us-cities
+       (filter (partial city-match? search-txt))
+       (take dropdown-menu-limit)))
+
+(def mem-find-cities (memoize find-cities))
 
 ;;------------------------------------------------------------------------------
 ;; App State
 ;;------------------------------------------------------------------------------
 
-(def initial-state {
-  :start-state-text ""
-  :finish-state-text ""
+(def initial-app-state {
+  :start-city nil
+  :finish-city nil
+
+  :start-city-search-text ""
+  :finish-city-search-text ""
+
   })
 
-(def app-state (atom initial-state))
+(def app-state (atom initial-app-state))
 
 ;;------------------------------------------------------------------------------
 ;; Events
@@ -31,48 +53,82 @@
   (let [new-value (aget js-evt "currentTarget" "value")]
     (swap! app-state assoc kwd new-value)))
 
+(defn- click-dropdown-option [search-text-kwd city-kwd city]
+  (swap! app-state assoc city-kwd city
+                         search-text-kwd ""))
+
+(defn- click-city-token [app-state-kwd]
+  (swap! app-state assoc app-state-kwd nil))
+
 ;;------------------------------------------------------------------------------
 ;; React Components
 ;;------------------------------------------------------------------------------
 
 (quiescent/defcomponent Filters []
-  (sablono/html [:div "filters"]))
-
-(quiescent/defcomponent StateDropdown [txt]
   (sablono/html
-    [:div.menu "state dropdown"]))
+    [:div "TODO: filters"]))
 
-(quiescent/defcomponent StartInput [txt]
+(sablono/defhtml city-option [search-text-kwd city-kwd city]
+  [:div.dropdown-option {:on-click (partial click-dropdown-option search-text-kwd city-kwd city)}
+    city])
+
+(quiescent/defcomponent CityDropdown [[search-txt search-text-kwd city-kwd]]
+  (let [matching-cities (mem-find-cities search-txt)]
+    (sablono/html
+      [:div.menu
+        (if (empty? matching-cities)
+          [:div.no-match "No matching cities."]
+          (map (partial city-option search-text-kwd city-kwd) matching-cities))])))
+
+(quiescent/defcomponent SelectedCityToken [[city kwd]]
+  (sablono/html
+    [:div.city-token
+      {:on-click (partial click-city-token kwd)}
+      city
+      [:span.x "x"]]))
+
+(quiescent/defcomponent CityInput [[search-txt search-text-kwd city-kwd]]
+  (sablono/html
+    [:div
+      [:input {:on-change (partial on-change-input search-text-kwd)
+               :placeholder "Please select a city"
+               :type "text"
+               :value search-txt}]
+      (when-not (blank? search-txt)
+        (CityDropdown [search-txt search-text-kwd city-kwd]))]))
+
+(quiescent/defcomponent TokenOrInput [{:keys [label selected-city search-txt city-kwd search-text-kwd]}]
   (sablono/html
     [:div.input-wrapper
-      [:label "Start City:"]
-      [:input {:on-change (partial on-change-input :start-state-text)
-               :type "text"
-               :value txt}]
-      (when-not (blank? txt)
-        (StateDropdown txt))]))
+      [:label (str label ":")]
+      (if selected-city
+        (SelectedCityToken [selected-city city-kwd])
+        (CityInput [search-txt search-text-kwd city-kwd]))]))
 
-(quiescent/defcomponent FinishInput [txt]
+(quiescent/defcomponent SelectCitiesInputs [state]
   (sablono/html
-    [:div.input-wrapper
-      [:label "Finish City:"]
-      [:input {:on-change (partial on-change-input :finish-state-text)
-               :type "text"
-               :value txt}]]))
-
-(quiescent/defcomponent StartFinishInputs [[start-txt finish-txt]]
-  (sablono/html
-    [:fieldset
-      [:legend "Select Start and End Cities"]
-      (StartInput start-txt)
-      (FinishInput finish-txt)
+    [:div
+      (TokenOrInput {:label "Start City"
+                  :selected-city (:start-city state)
+                  :search-txt (:start-city-search-text state)
+                  :city-kwd :start-city
+                  :search-text-kwd :start-city-search-text})
+      (TokenOrInput {:label "Finish City"
+                  :selected-city (:finish-city state)
+                  :search-txt (:finish-city-search-text state)
+                  :city-kwd :finish-city
+                  :search-text-kwd :finish-city-search-text})
       [:div.clearfix]]))
+
+(defn- show-filters? [state]
+  (and (:start-city state)
+       (:finish-city state)))
 
 (quiescent/defcomponent MenusApp [state]
   (sablono/html
     [:div.app-wrapper
-      (StartFinishInputs [(:start-state-text state) (:finish-state-text state)])
-      (when (:show-filter-inputs? state)
+      (SelectCitiesInputs state)
+      (when (show-filters? state)
         (Filters state))]))
 
 ;;------------------------------------------------------------------------------
