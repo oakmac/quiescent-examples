@@ -1,4 +1,4 @@
-(defproject menus-example "0.1.0"
+(defproject quiescent-examples "0.1.0"
 
   :dependencies [
     [org.clojure/clojure "1.7.0-beta2"]

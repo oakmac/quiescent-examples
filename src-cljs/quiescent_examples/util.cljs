@@ -1,4 +1,4 @@
-(ns menus-example.util)
+(ns quiescent-examples.util)
 
 ;;------------------------------------------------------------------------------
 ;; Util Functions
@@ -25,9 +25,3 @@
         (.toString (bit-or (* 16 (.random js/Math)) 0) 16)
         x))
     "00000000-0000-4000-0000-000000000000")))
-
-(defn by-id [id]
-  (.getElementById js/document id))
-
-(defn set-html! [id html]
-  (aset (by-id id) "innerHTML" html))
